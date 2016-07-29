@@ -69,12 +69,42 @@ class BookApiController extends Controller
      */
     public function show($id)
     {
-        $book = Book::find($id);
-        if($book){
-            return $book;
-        }else{
-            return response('There is no book with id'.$id,404);
-        }
+        $book = Book::findOrFail($id);
+        return $book;
+    }
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $book = Book::findOrFail($id);
+
+            $rules = [
+                'title' => 'required',
+                'year' => 'required|digits:4',
+                'author' => 'required|alpha',
+                'user_id' => 'exists:users,id',
+                'genre' => 'required|alpha' //alpha - поле может содержать только буквы
+            ];
+
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                return response('',406);
+            }else {
+
+                $book->title = $request->title;
+                $book->year = $request->year;
+                $book->author = $request->author;
+                $book->genre = $request->genre;
+                $book->user_id = $request->user_id;
+                $book->save();
+                $message = 'Book with ID:' . $book->id . ' successfully updated';
+                return $message;
+            }
 
     }
 

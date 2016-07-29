@@ -59,16 +59,7 @@ class UserApiController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -79,7 +70,28 @@ class UserApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $rules = [
+            'name' => 'required|alpha', //alpha - поле может содержать только буквы
+            'lastName' => 'required|alpha',
+            'addBook' => 'exists:books,id,user_id,NULL'
+        ];
+        if ($user->email != $request->email){
+            $rules['email'] = 'required|email|unique:users';
+        }
+
+        $validator = Validator::make($request->all(),$rules);
+        if($validator->fails()){
+            return response('',406);
+        }else{
+            $user->name = $request->name;
+            $user->lastName = $request->lastName;
+            $user->email = $request->email;
+            $user->save();
+
+            $message ='Successfully updated user';
+            return $message;
+        }
     }
 
     /**
@@ -90,6 +102,14 @@ class UserApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = Book::find($id);
+        if($user){
+            $user->delete();
+            $message='User with ID:' .$id. ' Successfully deleted';
+            return $message;
+        }else{
+            $message='ERROR: There is no User with ID:' .$id;
+            return response($message,406);
+        }
     }
 }
