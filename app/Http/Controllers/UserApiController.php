@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\User;
 use App\Book;
 use App\Http\Requests;
+use Illuminate\Support\Facades\Queue;
+use Carbon\Carbon;
 
 class UserApiController extends Controller
 {
@@ -28,6 +30,9 @@ class UserApiController extends Controller
         }
 
         $user->books()->save($book);
+
+        $date = Carbon::now()->addDays(30);
+        Queue::later($date, new SendBookRefundNotification($user,$book));
 
         return 'Book added successfully, user updated';
     }

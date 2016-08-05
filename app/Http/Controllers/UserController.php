@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendBookRefundNotification;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Queue;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -144,6 +147,10 @@ class UserController extends Controller
                 $book = Book::find($request->addBook);
 
                 $user->books()->save($book);
+
+                $date = Carbon::now()->addDays(30);
+
+                Queue::later($date, new SendBookRefundNotification($user,$book));
 
                 Session::flash('message', 'Book added successfully, user updated');
             }else{
