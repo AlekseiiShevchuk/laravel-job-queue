@@ -16,9 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\BookWasCreated' => [
             'App\Listeners\SendEmailNotificationsAboutNewBook',
         ],
-        'App\Events\BookWasAddedToUser' => [
-            'App\Listeners\MakeRefundNotificationJob',
-        ],
+//        'App\Events\BookWasAddedToUser' => [
+//            'App\Listeners\MakeRefundNotificationJob',
+//        ],
     ];
 
     /**
