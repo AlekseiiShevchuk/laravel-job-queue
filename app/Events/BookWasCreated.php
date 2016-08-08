@@ -13,17 +13,15 @@ class BookWasCreated extends Event
     use SerializesModels;
 
     public $book;
-    public $user;
 
     /**
      * Create a new event instance.
      *
      * @param Book $book
      */
-    public function __construct(Book $book, User $user)
+    public function __construct(Book $book)
     {
         $this->book = $book;
-        $this->user = $user;
     }
 
     /**
