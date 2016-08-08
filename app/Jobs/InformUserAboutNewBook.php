@@ -20,7 +20,7 @@ class InformUserAboutNewBook extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(User $user, Book $book)
+    public function __construct(User $user, $book)
     {
         $this->user = $user;
         $this->book = $book;

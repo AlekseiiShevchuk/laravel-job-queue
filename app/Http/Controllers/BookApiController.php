@@ -9,20 +9,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Queue;
 use Carbon\Carbon;
 use App\Jobs\SendBookRefundNotification;
+use App\Events\BookWasCreated;
 
 class BookApiController extends Controller
 {
 
-    /**
-     * @param $book
-     */
-    public function InformUsersAboutNewBook($book)
-    {
-        $users = User::all();
-        foreach ($users as $user) {
-            $this->dispatch(new InformUserAboutNewBook($user,$book));
-        }
-    }
 
     /**
      * @param $id
@@ -74,7 +65,7 @@ class BookApiController extends Controller
         } else {
             $book = new Book($request->all());
             $book->save();
-            $this->InformUsersAboutNewBook($book);
+            event(new BookWasCreated($book));
 
             return response()->json($book, 201);
         }

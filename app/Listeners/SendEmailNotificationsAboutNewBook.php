@@ -3,11 +3,16 @@
 namespace App\Listeners;
 
 use App\Events\BookWasCreated;
+use App\Jobs\InformUserAboutNewBook;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\User;
+use App\Book;
+use Illuminate\Support\Facades\Queue;
 
 class SendEmailNotificationsAboutNewBook
 {
+
     /**
      * Create the event listener.
      *
@@ -15,7 +20,7 @@ class SendEmailNotificationsAboutNewBook
      */
     public function __construct()
     {
-        //
+        
     }
 
     /**
@@ -26,6 +31,10 @@ class SendEmailNotificationsAboutNewBook
      */
     public function handle(BookWasCreated $event)
     {
-        //
+        $users = User::all();
+        foreach ($users as $user) {
+            
+            Queue::push(new InformUserAboutNewBook($user,$event->book));
+        }
     }
 }

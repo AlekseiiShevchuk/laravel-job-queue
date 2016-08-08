@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BookWasCreated;
 use App\Jobs\InformUserAboutNewBook;
 use App\Jobs\SendBookRefundNotification;
 use Illuminate\Http\Request;
@@ -26,17 +27,6 @@ class BookController extends Controller
         $this->authorize('isAdmin',Auth::user());
     }
 
-
-    /**
-     * @param $book
-     */
-    public function InformUsersAboutNewBook($book)
-    {
-        $users = User::all();
-        foreach ($users as $user) {
-            $this->dispatch(new InformUserAboutNewBook($user,$book));
-        }
-    }
     /**
      * Display a listing of the resource.
      *
@@ -88,7 +78,7 @@ class BookController extends Controller
             $book->genre = $request->genre;
             $book->user_id = $request->user_id;
             $book->save();
-            $this->InformUsersAboutNewBook($book);
+            event(new BookWasCreated($book));
             Session::flash('message', 'Book was successfully created');
             return Redirect::to('books');
         }
@@ -162,6 +152,7 @@ class BookController extends Controller
 
                 if($request->user_id){
                     $user = User::findOrfail($request->user_id);
+                    
                     $date = Carbon::now()->addDays(30);
                     Queue::later($date, new SendBookRefundNotification($user,$book));
                 }
